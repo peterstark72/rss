@@ -2,7 +2,7 @@
 
 A very simple RSS reader.
 
-```
+```Go
     const url = "https://polisen.se/aktuellt/rss/skane/handelser-rss---skane/"
 
     res, err := http.Get(url)
