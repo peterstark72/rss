@@ -1,11 +1,28 @@
 package rss_test
 
 import (
+	"fmt"
 	"net/http"
 	"testing"
 
 	"github.com/peterstark72/rss"
 )
+
+func ExampleReadAll() {
+	const url = "https://polisen.se/aktuellt/rss/skane/handelser-rss---skane/"
+
+	res, err := http.Get(url)
+	if err != nil {
+		return
+	}
+
+	feed := rss.ReadAll(res.Body)
+
+	//Output:
+	//Händelser RSS - Skåne
+	fmt.Println(feed.Channel.Title)
+
+}
 
 func TestPolisen(t *testing.T) {
 
