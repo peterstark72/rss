@@ -35,6 +35,7 @@ type Channel struct {
 	Items       []Item `xml:"item"`
 	Description string `xml:"description"`
 	Title       string `xml:"title"`
+	Link        string `xml:"link"`
 }
 
 //Feed is the RSS 2.0 root

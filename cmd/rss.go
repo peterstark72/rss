@@ -10,10 +10,6 @@ import (
 
 func main() {
 
-	if len(os.Args) != 2 {
-		panic("Please enter <RSS Feed URL>")
-	}
-
 	url := os.Args[1]
 
 	res, err := http.Get(url)
