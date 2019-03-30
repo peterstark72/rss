@@ -10,6 +10,10 @@ import (
 
 func main() {
 
+	if len(os.Args) != 2 {
+		panic("Please enter <RSS Feed URL>")
+	}
+
 	url := os.Args[1]
 
 	res, err := http.Get(url)
@@ -20,6 +24,7 @@ func main() {
 	feed := rss.ReadAll(res.Body)
 
 	for _, itm := range feed.Channel.Items {
-		fmt.Println(itm.PubDate, itm.Title)
+		fmt.Println(itm.Title)
 	}
+
 }
