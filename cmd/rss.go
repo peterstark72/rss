@@ -20,6 +20,7 @@ func main() {
 	if err != nil {
 		return
 	}
+	defer res.Body.Close()
 
 	feed := rss.ReadAll(res.Body)
 
