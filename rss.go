@@ -36,6 +36,8 @@ type Channel struct {
 	Description string `xml:"description"`
 	Title       string `xml:"title"`
 	Link        string `xml:"link"`
+	PubDate     string `xml:"pubDate"`
+	Language    string `xml:"language"`
 }
 
 //Feed is the RSS 2.0 root
