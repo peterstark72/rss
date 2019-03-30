@@ -11,6 +11,12 @@ type MediaContent struct {
 	URL string `xml:"url,attr"`
 }
 
+//Enclosure is an RSS 2.0 Enclosure
+type Enclosure struct {
+	URL  string `xml:"url,attr"`
+	Type string `xml:"type,attr"`
+}
+
 //Item is an RSS 2.0 Item
 type Item struct {
 	PubDate     string       `xml:"pubDate"`
@@ -20,6 +26,8 @@ type Item struct {
 	Creator     string       `xml:"creator"`
 	Category    []string     `xml:"category"`
 	Content     MediaContent `xml:"media:content"`
+	Enclosure   Enclosure    `xml:"enclosure"`
+	Title       string       `xml:"title"`
 }
 
 //Channel is an RSS 2.0 Channel
