@@ -1,6 +1,6 @@
-# Simple RSS Reader
+# Simple RSS package
 
-A very simple RSS reader.
+A very simple RSS package for reading RSS Feeds.
 
 ```Go
     const url = "https://polisen.se/aktuellt/rss/skane/handelser-rss---skane/"
@@ -11,7 +11,7 @@ A very simple RSS reader.
     }
     defer res.Body.Close()
 
-    feed := rss.ReadAll(res.Body)
+    feed, _ := rss.NewFeed(res.Body)
 
     fmt.Println(feed.Channel.Title)
 

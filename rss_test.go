@@ -1,61 +1,31 @@
 package rss_test
 
 import (
-	"fmt"
-	"net/http"
+	"strings"
 	"testing"
+	"time"
 
 	"github.com/peterstark72/rss"
 )
 
-func ExampleReadAll() {
-	const url = "https://polisen.se/aktuellt/rss/skane/handelser-rss---skane/"
+const (
+	PolisenRSS     = "https://polisen.se/aktuellt/rss/skane/handelser-rss---skane/"
+	SydsvenskanRSS = "https://tygelsjo-20030801.appspot.com/?q=Tygelsj%C3%B6"
+	NYT            = "http://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml"
+)
 
-	res, err := http.Get(url)
+func TestNewFeed(t *testing.T) {
+
+	var r = `<rss version="2.0"><channel><item><pubDate>2019-03-04T17:41:04+01:00</pubDate><title>Test</title></item></channel></rss>`
+
+	f, err := rss.NewFeed(strings.NewReader(r))
 	if err != nil {
-		return
+		t.Error("Could not read string", err)
 	}
 
-	feed := rss.ReadAll(res.Body)
-
-	//Output:
-	//Händelser RSS - Skåne
-	fmt.Println(feed.Channel.Title)
-
-}
-
-func TestPolisen(t *testing.T) {
-
-	const url = "https://polisen.se/aktuellt/rss/skane/handelser-rss---skane/"
-
-	res, err := http.Get(url)
-	if err != nil {
-		t.Error("Could not load")
-		return
+	d, _ := f.Channel.Items[0].ParsePubDate()
+	if d.Format(time.RFC3339) != "2019-03-04T17:41:04+01:00" {
+		t.Error("Wrong date")
 	}
-	defer res.Body.Close()
 
-	feed := rss.ReadAll(res.Body)
-
-	if len(feed.Channel.Items) == 0 {
-		t.Error("Missing items")
-	}
-}
-
-func TestMyNewsDesk(t *testing.T) {
-
-	const url = "http://www.mynewsdesk.com/se/search/rss?page=1&query=tygelsj%C3%B6&sites%5B%5D=se&type_of_medias=&utf8=%E2%9C%93"
-
-	res, err := http.Get(url)
-	if err != nil {
-		t.Error("Could not load")
-		return
-	}
-	defer res.Body.Close()
-
-	feed := rss.ReadAll(res.Body)
-
-	if len(feed.Channel.Items) == 0 {
-		t.Error("Missing items")
-	}
 }

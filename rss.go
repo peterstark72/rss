@@ -1,20 +1,31 @@
+//Package rss provides functions to parse RSS 2.0 feeds.
 package rss
 
 import (
 	"encoding/xml"
 	"io"
 	"io/ioutil"
+	"time"
 )
 
 //MediaContent is the Yahoo Media RSS
 type MediaContent struct {
-	URL string `xml:"url,attr"`
+	URL    string `xml:"url,attr"`
+	Width  string `xml:"width,attr"`
+	Height string `xml:"height,attr"`
+	Medium string `xml:"medium,attr"`
 }
 
 //Enclosure is an RSS 2.0 Enclosure
 type Enclosure struct {
 	URL  string `xml:"url,attr"`
 	Type string `xml:"type,attr"`
+}
+
+//Source is the RSS channel that the item came from.
+type Source struct {
+	URL  string `xml:"url,attr"`
+	Name string `xml:",chardata"`
 }
 
 //Item is an RSS 2.0 Item
@@ -25,9 +36,24 @@ type Item struct {
 	Link        string       `xml:"link"`
 	Creator     string       `xml:"creator"`
 	Category    []string     `xml:"category"`
-	Content     MediaContent `xml:"media:content"`
+	Content     MediaContent `xml:"content"`
 	Enclosure   Enclosure    `xml:"enclosure"`
 	Title       string       `xml:"title"`
+	Source      Source       `xml:"source"`
+}
+
+//CommonDateLayouts is an array of commonly used date formats
+var CommonDateLayouts = []string{time.RFC1123, time.RFC1123Z, time.RFC3339}
+
+//ParsePubDate attempts to parse PubDate using CommonDateLayouts
+func (itm *Item) ParsePubDate() (t time.Time, err error) {
+	for _, layout := range CommonDateLayouts {
+		t, err := time.Parse(layout, itm.PubDate)
+		if err == nil {
+			return t, nil
+		}
+	}
+	return
 }
 
 //Channel is an RSS 2.0 Channel
@@ -38,6 +64,7 @@ type Channel struct {
 	Link        string `xml:"link"`
 	PubDate     string `xml:"pubDate"`
 	Language    string `xml:"language"`
+	Copyright   string `xml:"copyright"`
 }
 
 //Feed is the RSS 2.0 root
@@ -48,28 +75,27 @@ type Feed struct {
 	Channel Channel  `xml:"channel"`
 }
 
-//DateLayout is the date format often used by RSS
-const DateLayout = "Mon, 2 Jan 2006 15:04:05 -0700"
-
-//Version is the supported RSS version
-const Version = "2.0"
-
-//YahooMediaNamespace is the Yahoo media namespace URI
-const YahooMediaNamespace = "http://search.yahoo.com/mrss/"
-
-//ReadAll returns as channel with items
-func ReadAll(r io.Reader) (fd Feed) {
-	data, _ := ioutil.ReadAll(r)
-	xml.Unmarshal(data, &fd)
+//NewFeed creates a new Feed from r
+func NewFeed(r io.Reader) (f *Feed, err error) {
+	f = &Feed{}
+	data, err := ioutil.ReadAll(r)
+	if err != nil {
+		return
+	}
+	xml.Unmarshal(data, &f)
 
 	return
 }
 
-//NewFeed created an empty RSS Feed
-func NewFeed(title string) (fd Feed) {
-	fd.Channel.Title = title
-	fd.Version = Version
-	fd.Media = YahooMediaNamespace
+//DateSorter sorts RSS Items in date order
+type DateSorter []Item
 
-	return
+func (s DateSorter) Len() int { return len(s) }
+func (s DateSorter) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
+}
+func (s DateSorter) Less(i, j int) bool {
+	d1, _ := s[i].ParsePubDate()
+	d2, _ := s[j].ParsePubDate()
+	return d1.After(d2)
 }
