@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"sort"
 	"sync"
 )
 
@@ -48,10 +49,10 @@ func MuxSources(sources ...string) chan Item {
 }
 
 //FilterItems filters items through fn
-func FilterItems(items <-chan Item, fn func(Item) bool) chan Item {
+func FilterItems(in <-chan Item, fn func(Item) bool) chan Item {
 	out := make(chan Item)
 	go func() {
-		for itm := range items {
+		for itm := range in {
 			if fn(itm) {
 				out <- itm
 			}
@@ -62,32 +63,16 @@ func FilterItems(items <-chan Item, fn func(Item) bool) chan Item {
 }
 
 //WriteAsJSON writes Items as JSON array to w
-func WriteAsJSON(w io.Writer, items <-chan Item) (err error) {
+func WriteAsJSON(w io.Writer, in <-chan Item) (err error) {
 
-	type JSItem struct {
-		Title       string `json:"title"`
-		Description string `json:"description"`
-		Link        string `json:"url"`
-		PubDate     string `json:"pubdate"`
-		Source      string `json:"source"`
-		Image       string `json:"image"`
+	var items []Item
+	for itm := range in {
+		items = append(items, itm)
 	}
 
-	var result []JSItem
-	for itm := range items {
+	sort.Sort(DateSorter(items))
 
-		d, _ := itm.ParsePubDate()
-		result = append(result, JSItem{
-			Title:       itm.Title,
-			Description: itm.Description,
-			Link:        itm.Link,
-			PubDate:     d.Format("2006-01-02"), //JS friendly date format
-			Source:      itm.Source.Name,
-			Image:       itm.Enclosure.URL,
-		})
-	}
-
-	data, err := json.Marshal(result)
+	data, err := json.Marshal(items)
 	if err != nil {
 		return
 	}

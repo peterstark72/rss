@@ -23,7 +23,7 @@ func TestNewFeed(t *testing.T) {
 		t.Error("Could not read string", err)
 	}
 
-	d, _ := f.Channel.Items[0].ParsePubDate()
+	d := f.Channel.Items[0].PubDate.T
 	if d.Format(time.RFC3339) != "2019-03-04T17:41:04+01:00" {
 		t.Error("Wrong date")
 	}

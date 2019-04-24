@@ -27,7 +27,6 @@ func main() {
 	}
 
 	for _, itm := range f.Channel.Items {
-		d, _ := itm.ParsePubDate()
-		fmt.Printf("%s - %s\n", d.Format("2006-01-02"), itm.Title)
+		fmt.Printf("%s - %s\n", itm.PubDate.T.Format("2006-01-02"), itm.Title)
 	}
 }

@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"net/url"
-	"os"
 	"strings"
 	"testing"
 
@@ -37,7 +36,7 @@ func TestJSON(t *testing.T) {
 	})
 
 	b := new(bytes.Buffer)
-	rss.WriteAsJSON(os.Stdout, items2)
+	rss.WriteAsJSON(b, items2)
 
 	if len(b.String()) == 0 {
 		t.Error("Could not write JSON")
