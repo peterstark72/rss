@@ -86,16 +86,3 @@ func NewFeed(r io.Reader) (f *Feed, err error) {
 
 	return
 }
-
-//DateSorter sorts RSS Items in date order
-type DateSorter []Item
-
-func (s DateSorter) Len() int { return len(s) }
-func (s DateSorter) Swap(i, j int) {
-	s[i], s[j] = s[j], s[i]
-}
-func (s DateSorter) Less(i, j int) bool {
-	d1, _ := s[i].ParsePubDate()
-	d2, _ := s[j].ParsePubDate()
-	return d1.After(d2)
-}
