@@ -1,15 +1,14 @@
-//Package rss provides functions to parse RSS 2.0 feeds.
+// Package rss provides functions to parse RSS 2.0 feeds.
 package rss
 
 import (
 	"encoding/json"
 	"encoding/xml"
 	"io"
-	"io/ioutil"
 	"time"
 )
 
-//MediaContent is the Yahoo Media RSS
+// MediaContent is the Yahoo Media RSS
 type MediaContent struct {
 	URL    string `xml:"url,attr" json:"URL,omitempty"`
 	Width  string `xml:"width,attr" json:"Width,omitempty"`
@@ -17,13 +16,13 @@ type MediaContent struct {
 	Medium string `xml:"medium,attr" json:"Medium,omitempty"`
 }
 
-//Enclosure is an RSS 2.0 Enclosure
+// Enclosure is an RSS 2.0 Enclosure
 type Enclosure struct {
 	URL  string `xml:"url,attr" json:"URL"`
 	Type string `xml:"type,attr" json:"Type,omitempty"`
 }
 
-//Source is the RSS channel that the item came from.
+// Source is the RSS channel that the item came from.
 type Source struct {
 	URL  string `xml:"url,attr" json:"URL,omitempty"`
 	Name string `xml:",chardata" json:"Name,omitempty"`
@@ -33,10 +32,10 @@ type PubDate struct {
 	T time.Time
 }
 
-//CommonDateLayouts is an array of commonly used date formats
+// CommonDateLayouts is an array of commonly used date formats
 var CommonDateLayouts = []string{time.RFC1123, time.RFC1123Z, time.RFC3339}
 
-//UnmarshalXML unmarshals RSS dates
+// UnmarshalXML unmarshals RSS dates
 func (p *PubDate) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	var s string
 	if err := d.DecodeElement(&s, &start); err != nil {
@@ -55,12 +54,12 @@ func (p *PubDate) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	return err
 }
 
-//MarshalJSON marshals RSS Pubdate to JSON
+// MarshalJSON marshals RSS Pubdate to JSON
 func (p PubDate) MarshalJSON() ([]byte, error) {
 	return json.Marshal(p.T.Format("2006-01-02"))
 }
 
-//Item is an RSS 2.0 Item
+// Item is an RSS 2.0 Item
 type Item struct {
 	PubDate     PubDate      `xml:"pubDate" json:"PubDate"`
 	Description string       `xml:"description" json:"Description"`
@@ -74,7 +73,7 @@ type Item struct {
 	Source      Source       `xml:"source" json:"Source"`
 }
 
-//DateSorter sorts a list of items by date
+// DateSorter sorts a list of items by date
 type DateSorter []Item
 
 func (s DateSorter) Len() int      { return len(s) }
@@ -83,7 +82,7 @@ func (s DateSorter) Less(i, j int) bool {
 	return s[i].PubDate.T.After(s[j].PubDate.T)
 }
 
-//Channel is an RSS 2.0 Channel
+// Channel is an RSS 2.0 Channel
 type Channel struct {
 	Items       []Item `xml:"item"`
 	Description string `xml:"description"`
@@ -94,7 +93,7 @@ type Channel struct {
 	Copyright   string `xml:"copyright"`
 }
 
-//Feed is the RSS 2.0 root
+// Feed is the RSS 2.0 root
 type Feed struct {
 	XMLName xml.Name `xml:"rss"`
 	Version string   `xml:"version,attr"`
@@ -102,10 +101,10 @@ type Feed struct {
 	Channel Channel  `xml:"channel"`
 }
 
-//NewFeed creates a new Feed from r
+// NewFeed creates a new Feed from r
 func NewFeed(r io.Reader) (f *Feed, err error) {
 	f = &Feed{}
-	data, err := ioutil.ReadAll(r)
+	data, err := io.ReadAll(r)
 	if err != nil {
 		return
 	}

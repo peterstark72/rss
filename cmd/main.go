@@ -4,13 +4,14 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/peterstark72/rss"
 )
 
 func main() {
 
-	if len(os.Args) == 0 {
+	if len(os.Args) < 2 {
 		panic("Usage: rss <url>")
 	}
 
@@ -27,6 +28,9 @@ func main() {
 	}
 
 	for _, itm := range f.Channel.Items {
-		fmt.Printf("%s - %s\n", itm.PubDate.T.Format("2006-01-02"), itm.Title)
+
+		if itm.PubDate.T.Format(time.DateOnly) == time.Now().Format(time.DateOnly) {
+			fmt.Printf("%s - %s, %s\n", itm.PubDate.T.Format("2006-01-02"), itm.Title, itm.Description)
+		}
 	}
 }
